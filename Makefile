@@ -1,36 +1,24 @@
-NAME = ft_irc
+NAME = ircserv
+
 CC = c++
-FLAGS = -Wall -Wextra -Werror -std=c++98 -Iinclude
-OBJS_DIR = obj/
-SRCS_DIR = src/
+CFLAGS = -Wall -Wextra -Werror -std=c++98
 
-######## SRC
+SRCS = src/main.cpp src/Server.cpp src/Client.cpp src/Channel.cpp src/cmds/ServerCommands.cpp src/ServerUtils.cpp src/cmds/OpCommands.cpp src/cmds/mode.cpp
+OBJS = $(SRCS:.cpp=.o)
+INCS = -Iinclude
 
-SRC_FILES = ft_irc
+all: $(NAME)
 
-SRCS = $(addprefix $(SRCS_DIR), $(addsuffix .cpp, $(SRC_FILES)))
-OBJS = $(addprefix $(OBJS_DIR), $(addsuffix .o, $(SRC_FILES)))
+$(NAME): $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) -o $(NAME)
 
-OBJSF = $(OBJS_DIR)
+%.o: %.cpp
+	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
-all: $(NAME) $(OBJSF)
+clean:
+	rm -f $(OBJS)
 
-$(NAME): $(OBJS) $(OBJSF)
-	$(CC) $(FLAGS) $(OBJS) -o $(NAME) 
-
-$(OBJS_DIR)%.o : $(SRCS_DIR)%.cpp | $(OBJSF)
-	$(CC)  $(FLAGS) -c $< -o $@
-
-$(OBJSF): 
-	mkdir -p $(OBJS_DIR)
-
-clean: 
-	rm -fr $(OBJS_DIR)
-	rm -fr $(OBJS)
-	
 fclean: clean
 	rm -f $(NAME)
-	
-re: fclean all
 
-.PHONY: clean all re fclean
+re: fclean all
