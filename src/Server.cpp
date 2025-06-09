@@ -13,7 +13,6 @@ Server::Server(const std::string &port, const std::string &password)
 	_port = std::atoi(port.c_str()); 
 	if (_port <= 1024 || _port > 65535)
 		throw std::invalid_argument("Invalid port");
-
 	_initSocket();
 }
 
@@ -76,7 +75,7 @@ void Server::_parseCommand(int clientFd, const std::string &msg)
 		client->tryAuthenticate();
 		
 		if (!wasAuthenticated && client->isAuthenticated())
-		_sendWelcomeMessage(clientFd);
+			_sendWelcomeMessage(clientFd);
 	}
 	
 void Server::_initSocket()
@@ -84,26 +83,22 @@ void Server::_initSocket()
 	_serverSocket = socket(AF_INET, SOCK_STREAM, 0);
 	if (_serverSocket < 0)
 		throw std::runtime_error("Failed to create socket");
-
 	int opt = 1;
 	if (setsockopt(_serverSocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
 	{
 		close(_serverSocket);
 		throw std::runtime_error("Failed to set socket options");
-	}
-	
+	}	
 	if (fcntl(_serverSocket, F_SETFL, O_NONBLOCK) < 0)
 	{
 		close(_serverSocket);
 		throw std::runtime_error("Failed to set socket to non-blocking");
 	}
-
 	struct sockaddr_in serverAddr;
 	std::memset(&serverAddr, 0, sizeof(serverAddr));
 	serverAddr.sin_family = AF_INET;
 	serverAddr.sin_addr.s_addr = INADDR_ANY;
 	serverAddr.sin_port = htons(_port);
-
 	if (bind(_serverSocket, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0)
 	{
 		close(_serverSocket);
@@ -120,7 +115,6 @@ void Server::_initSocket()
 	serverPfd.fd = _serverSocket;
 	serverPfd.events = POLLIN;
 	_pollFds.push_back(serverPfd);
-	
 	std::cout << "Server listening on port " << _port << std::endl;
 }
 
@@ -173,14 +167,11 @@ void Server::_acceptNewClient()
 	clientPfd.events = POLLIN;
 	clientPfd.revents = 0;
 	_pollFds.push_back(clientPfd);
-
 	char clientIp[INET_ADDRSTRLEN];
 	inet_ntop(AF_INET, &clientAddr.sin_addr, clientIp, INET_ADDRSTRLEN);
 	std::string hostname = clientIp;
-
 	Client *newClient = new Client(clientFd, hostname);
 	_clients[clientFd] = newClient;
-
 	std::cout << "New client connected (fd: " << clientFd << ")" << std::endl;
 }
 
@@ -191,13 +182,10 @@ void Server::_handleClientMessage(int clientFd)
 	int bytesRead = recv(clientFd, buffer, sizeof(buffer) - 1, 0);
 	if (bytesRead <= 0)
 		return _removeClient(clientFd);
-	
 	Client *client = _clients[clientFd];
 	client->appendToBuffer(buffer);
-
 	std::string &buf = client->getRecvBuffer();
 	std::size_t pos;
-
 	while ((pos = buf.find('\n')) != std::string::npos)
 	{
 		std::string msg = buf.substr(0, pos);

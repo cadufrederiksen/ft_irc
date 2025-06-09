@@ -89,12 +89,12 @@ void Server::_mode(Client *client, int clientFd, const std::string &msg)
 
 	ss >> cmd >> channelName >> flag >> parameters;
 	if (_channels.find(channelName) == _channels.end())
-	return _sendMessage(clientFd, ERR_NOSUCHCHANNEL(client->getNickname(), channelName));
+		return _sendMessage(clientFd, ERR_NOSUCHCHANNEL(client->getNickname(), channelName));
 	Channel *channel = _channels[channelName];
 	if (!channel->isOperator(client))
-	return _sendMessage(clientFd, ERR_CHANOPRIVSNEEDED(client->getNickname(), channelName));
+		return _sendMessage(clientFd, ERR_CHANOPRIVSNEEDED(client->getNickname(), channelName));
 	if (flag.empty())
-	return _sendMessage(clientFd, RPL_CHANNELMODES(client->getNickname(), channelName, channel->getModes()));
+		return _sendMessage(clientFd, RPL_CHANNELMODES(client->getNickname(), channelName, channel->getModes()));
 	if (flag[1] == 'o')
 		return _modeO(client, clientFd, flag, parameters, channel);
 	if (flag[1] == 'i')

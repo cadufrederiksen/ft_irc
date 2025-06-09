@@ -24,13 +24,13 @@ void Server::_sendMessage(int fd, const std::string &msg)
     std::cerr << "Error: FD " << fd << " not found in _pollFds vector for queueing message." << std::endl;
 }
 
-void Server::_handleClientWrite(int clientFd) {
+void Server::_handleClientWrite(int clientFd)
+{
     std::map<int, Client *>::iterator it = _clients.find(clientFd);
     if (it == _clients.end())
         return;
 
     Client* client = it->second;
-
     std::string& sendBuffer = const_cast<std::string&>(client->getSendBuffer());
 
     if (sendBuffer.empty()) 
@@ -44,7 +44,6 @@ void Server::_handleClientWrite(int clientFd) {
         }
         return;
     }
-
     ssize_t bytesSent = send(clientFd, sendBuffer.c_str(), sendBuffer.length(), 0);
 
     if (bytesSent == -1) 
@@ -94,7 +93,6 @@ void Server::_sendWelcomeMessage(int clientFd)
 	const std::string &nick = client->getNickname();
 	const std::string &username = client->getUsername();
 	const std::string &hostname = client->getHostname();
-
 	_sendMessage(clientFd, RPL_WELCOME(nick, username, hostname));
 }
 

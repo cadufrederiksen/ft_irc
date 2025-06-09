@@ -50,13 +50,13 @@ void Server::	_join(Client *client, int clientFd, const std::string &msg)
 {
 	std::string cmd, channels, keys;
 	std::istringstream ss(msg);
-	ss >> cmd >> channels >> keys;
-
 	std::vector<std::string> channelList;
 	std::vector<std::string> keyList;
 	std::istringstream channelStream(channels);
 	std::istringstream keyStream(keys);
 	std::string token;
+
+	ss >> cmd >> channels >> keys;
 
 	while (std::getline(channelStream, token, ','))
 		channelList.push_back(token);
@@ -67,7 +67,6 @@ void Server::	_join(Client *client, int clientFd, const std::string &msg)
 	{
 		std::string channelName = channelList[i];
 		std::string pass = (i < keyList.size()) ? keyList[i] : "";
-		
 		if (channelName.empty() || channelName[0] != '#')
 		{
 			_sendMessage(clientFd, ERR_NOSUCHCHANNEL(client->getNickname(), channelName));
@@ -239,9 +238,7 @@ void Server::_part(Client *client, int clientFd, const std::string &msg)
 			partMsg += " :" + reason;
 		partMsg += "\r\n";
 		_broadcastToChannel(channelName, partMsg, -1);
-		
 		channel->removeClient(client);
-		
 		if (channel->getTotalUsers() > 0)
 		{
 			bool hasOperator = false;
@@ -300,7 +297,6 @@ void Server::_quit(Client *client, int clientFd, const std::string &msg)
 		_broadcastToChannel(*it, quitMsg, clientFd);
 	for (std::vector<std::string>::iterator it = channelsToLeave.begin(); it != channelsToLeave.end(); ++it)
 		_part(client, clientFd, "PART " + *it + " :" + reason);
-
 	_sendMessage(clientFd, quitMsg);
 	_removeClient(clientFd);
 }
